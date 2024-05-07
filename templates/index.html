@@ -399,7 +399,7 @@
         </div>
 
     </div>
-    <div class="footer">
+    <!-- <div class="footer">
         <div id="button"></div>
         <div id="container">
             <div id="cont">
@@ -408,7 +408,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
     <div class="select_buttons" style="text-align: center;">
         <button class="btn btn-primary" id="button1">Abstract</button>
         <button class="btn btn-secondary" id="button2">MITRE ATT&CK Table</button>
@@ -417,14 +417,55 @@
     </div>
 
     <script>
+        var a = 1;
+        let button1 = document.getElementById('button1');
+        let button2 = document.getElementById('button2');
+        let button3 = document.getElementById('button3');
+
+
+        button1.addEventListener('click', function () {
+            a = 1;
+        });
+
+        button2.addEventListener('click', function () {
+            a = 2;
+        });
+
+        button3.addEventListener('click', function () {
+            a = 3;
+        });
+
+        // async function sendDataToBackend(action) {
+        //     const url = '/get?action=' + action;
+
+        //     try {
+        //         const response = await fetch(url);
+
+        //         if (!response.ok) {
+        //             throw new Error('Network response was not ok');
+        //         }
+
+        //         const data = await response.json();
+        //         console.log(data);
+        //     } catch (error) {
+        //         console.error('There was a problem with your fetch operation:', error);
+        //     }
+        // }
+
+
+
+
         (function () {
             var Message;
             Message = function (arg) {
                 this.text = arg.text, this.message_side = arg.message_side;
+                console.log("text: ", this.text);
+                console.log("message ", this.message_side);
                 this.draw = function (_this) {
                     return function () {
                         var $message;
                         $message = $($('.message_template').clone().html());
+                        // console.log($message);
                         $message.addClass(_this.message_side).find('.text').html(_this.text);
                         $('.messages').append($message);
                         return setTimeout(function () {
@@ -436,10 +477,15 @@
             };
             $(function () { //渲染完再執行function
                 var getMessageText, message_side, sendMessage;
+                var messages = document.querySelector('.messages');
+                // console.log("getMessageText", getMessageText);
+                // console.log("message_side", message_side);
+                // console.log("sendMessage", sendMessage);
                 message_side = 'right';
                 getMessageText = function () {
                     var $message_input;
                     $message_input = $('.message_input');
+                    // console.log("$message_input", $message_input.val());
                     return $message_input.val();
                 };
 
@@ -450,8 +496,9 @@
                         return;
                     }
                     $('.message_input').val('');
+                    // console.log( " $('.message_input').val('')",$('.message_input').val(''));
                     $messages = $('.messages');
-
+                    // console.log("$messages", $messages);
                     // Set message_side based on whether the message is from the user or chatbot
                     var message_side = 'right';
 
@@ -459,22 +506,22 @@
                         text: text,
                         message_side: message_side
                     });
+                    // console.log("message::", message)
 
                     // Draw user message
                     message.draw();
-
-                    // Call getResponse() to get the chatbot's response
-                    $.get("/get", { msg: text }).done(function (data) { //object.get
-                        var botMessage = new Message({
-                            text: data,
-                            message_side: 'left'
+                    // console.log("message:draw:", message)
+                    fetch("/get?msg=" + text + "&a=" + a)
+                        .then(response => response.json())
+                        .then(data => {
+                            var botMessage = new Message({
+                                text: data.response,
+                                message_side: 'left'
+                            });
+                            botMessage.draw();
+                            messages.scrollTop = messages.scrollHeight;
                         });
 
-        
-                        // Draw bot message
-                        botMessage.draw();
-                        $messages.animate({ scrollTop: $messages.prop('scrollHeight') }, 300);
-                    });
 
                     return $messages.animate({ scrollTop: $messages.prop('scrollHeight') }, 300);
                 };
