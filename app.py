@@ -1,8 +1,6 @@
 from flask import Flask, render_template,jsonify,request
 import subprocess
-
 app = Flask(__name__)
-a = 2
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -22,19 +20,22 @@ def index():
         
 #         return jsonify({'status': 'success'})
 
-@app.route('/get', methods=['GET'])
+@app.route('/get', methods=['POST'])
 def get_response():
-    action = request.args.get('a')
-    print("a: ",a )
-    if action == '1':
-        result = subprocess.run(['/usr/bin/python3', 'hello.py', 'yee'], capture_output=True, text=True)
+    data = request.json
+    action = data.get('a')
+    message = data.get('message')
+    print("a: ",type(action) )
+    print("msg: ",message)
+    if action == 1:
+        result = subprocess.run(['/usr/bin/python3', 'hello.py', message], capture_output=True, text=True)
         response = result.stdout
         print(response)
-    elif action == '2':
-        result = subprocess.run(['/usr/bin/python3', 'hello.py', 'param1'], capture_output=True, text=True)
+    elif action == 2:
+        result = subprocess.run(['/usr/bin/python3', 'hello.py', '哈哈屁眼'], capture_output=True, text=True)
         response = result.stdout
-    elif action == '3':
-        result = subprocess.run(['/usr/bin/python3', 'hello.py', 'param1'], capture_output=True, text=True)
+    elif action == 3:
+        result = subprocess.run(['/usr/bin/python3', 'hello.py', '真假'], capture_output=True, text=True)
         response = result.stdout
     else:
         response = "invalid action"           
