@@ -25,17 +25,19 @@ def get_response():
     data = request.json
     action = data.get('a')
     message = data.get('message')
-    print("a: ",type(action) )
+    # print("a: ",type(action) )
     print("msg: ",message)
     if action == 1:
-        result = subprocess.run(['/usr/bin/python3', 'hello.py', message], capture_output=True, text=True)
+        result = subprocess.run(['/usr/bin/python3', 'flask_to_lambda.py', message, 'Summary_GenAI'], capture_output=True, text=True)
         response = result.stdout
-        print(response)
+        # print("result",result)
+        print("response: ", response)
+        print("error: ", result.stderr)
     elif action == 2:
-        result = subprocess.run(['/usr/bin/python3', 'hello.py', '哈哈屁眼'], capture_output=True, text=True)
+        result = subprocess.run(['/usr/bin/python3', 'flask_to_lambda.py', message, 'Cybersecurity_GenAI'], capture_output=True, text=True)
         response = result.stdout
     elif action == 3:
-        result = subprocess.run(['/usr/bin/python3', 'hello.py', '真假'], capture_output=True, text=True)
+        result = subprocess.run(['/usr/bin/python3', 'flask_to_lambda.py', message, 'Mitre_attack_GenAI'], capture_output=True, text=True)
         response = result.stdout
     else:
         response = "invalid action"           
