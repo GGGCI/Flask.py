@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <style>
         #textInput {
             border: 2px solid black;
@@ -62,7 +63,6 @@
             background-color: #fff;
             overflow: hidden;
         }
-
 
 
         .top_menu {
@@ -139,6 +139,7 @@
 
         .messages .message.left .text {
             color: #c48843;
+            word-wrap: break-word;
         }
 
         .messages .message.left .avatar {
@@ -206,11 +207,24 @@
         .messages .message .text_wrapper::before {
             border-width: 15px;
             margin-top: -2px;
+
         }
 
         .messages .message .text_wrapper .text {
             font-size: 18px;
             font-weight: 300;
+            word-wrap: break-word;
+        }
+
+        .messages .message .text_wrapper table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .messages .message .text_wrapper table,
+        th,
+        td {
+            border: 1px solid black;
         }
 
         .bottom_wrapper {
@@ -356,13 +370,7 @@
             margin-left: 10px;
         }
     </style>
-
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </head>
-
-
-
 
 <body>
     <div class="container"
@@ -386,8 +394,8 @@
                 <div class="text">Send</div>
             </div>
             <!--
-        <button id="refreshBtn" class="btn btn-primary form-control" onclick="location.reload()">Refresh</button>
-        -->
+    <button id="refreshBtn" class="btn btn-primary form-control" onclick="location.reload()">Refresh</button>
+    -->
         </div>
         <div class="message_template">
             <li class="message">
@@ -397,18 +405,25 @@
                 </div>
             </li>
         </div>
-
+        <div class="message_template table">
+            <li class="message">
+                <div class="avatar"></div>
+                <div class="text_wrapper">
+                    <table></table>
+                </div>
+            </li>
+        </div>
     </div>
     <!-- <div class="footer">
-        <div id="button"></div>
-        <div id="container">
-            <div id="cont">
-                <div class="footer_center">
-                    <h3>It is an AI model. &#169; <a href="https://www.batuhantoker.com/">Batuhan Toker</a> </h3>
-                </div>
+    <div id="button"></div>
+    <div id="container">
+        <div id="cont">
+            <div class="footer_center">
+                <h3>It is an AI model. &#169; <a href="https://www.batuhantoker.com/">Batuhan Toker</a> </h3>
             </div>
         </div>
-    </div> -->
+    </div>
+</div> -->
     <div class="select_buttons" style="text-align: center;">
         <button class="btn btn-primary" id="button1">Abstract</button>
         <button class="btn btn-secondary" id="button2">MITRE ATT&CK Table</button>
@@ -453,8 +468,6 @@
         // }
 
 
-
-
         (function () {
             var Message;
             Message = function (arg) {
@@ -475,6 +488,113 @@
                 }(this);
                 return this;
             };
+            url_Message = function (arg) {
+                this.text = arg.text, this.message_side = arg.message_side;
+                console.log("text_info: ", this.text);
+                console.log("message_info ", this.message_side);
+                this.text = this.text.replace(/'/g, '"');
+                let textObject = JSON.parse(this.text);
+                let url = textObject.url;
+                let content = textObject.content;
+                this.text = "Url: "+url ;
+                this.draw = function (_this) {
+                    return function () {
+                        var $message;
+                        $message = $($('.message_template').clone().html());
+                        console.log("message",$message);
+                        $message.addClass(_this.message_side).find('.text').html(_this.text);
+                        $('.messages').append($message);
+                        return setTimeout(function () {
+                            return $message.addClass('appeared');
+                        }, 0);
+                    };
+                }(this);
+                return this;
+            };
+            content_Message = function (arg) {
+                this.text = arg.text, this.message_side = arg.message_side;
+                console.log("text_info: ", this.text);
+                console.log("message_info ", this.message_side);
+                this.text = this.text.replace(/'/g, '"');
+                let textObject = JSON.parse(this.text);
+                let url = textObject.url;
+                let content = textObject.content;
+                this.text = "Content: "+content ;
+                this.draw = function (_this) {
+                    return function () {
+                        var $message;
+                        $message = $($('.message_template').clone().html());
+                        console.log("message",$message);
+                        $message.addClass(_this.message_side).find('.text').html(_this.text);
+                        $('.messages').append($message);
+                        return setTimeout(function () {
+                            return $message.addClass('appeared');
+                        }, 0);
+                    };
+                }(this);
+                return this;
+            };
+
+            class TableMessage {
+                constructor(arg) {
+                    console.log("arg.text",arg.text);
+                    arg.text = arg.text.replace(/'/g, '"');
+                    console.log("new_arg_text", arg.text);
+                    this.data = JSON.parse(arg.text);
+                    this.message_side = arg.message_side;
+                }
+
+                draw() {
+                    let $message;
+                    $message = $($('.message_template.table').clone().html()); //get table msg
+                    $message.addClass(this.message_side) // add class left or right
+                    // $message.find('.text').html(this.text);
+                    let table = $message.find('table')[0];
+                    this.generateTableHead(table, this.data);
+                    this.generateTableRows(table, this.data);
+
+                    $('.messages').append($message);
+                    return setTimeout(function () {
+                        return $message.addClass('appeared');
+                    }, 0);
+                }
+                generateTableHead(table, data) {
+                    let thead = table.createTHead();
+                    let row = thead.insertRow();
+                    for (let key of Object.keys(data)) {
+                        let th = document.createElement("th");
+                        let text = document.createTextNode(key);
+                        th.appendChild(text);
+                        row.appendChild(th);
+                    }
+                    return thead;
+                }
+                generateTableRows(table, data) {
+                    let tbody = table.createTBody();
+                    const array = this.parseDataToTableData(data);
+                    for (let i = 0; i < array.length; i++) {
+                        let row = tbody.insertRow();
+                        for (let j = 0; j < array[i].length; j++) {
+                            let cell = row.insertCell();
+                            let text = document.createTextNode(array[i][j]);
+                            cell.appendChild(text);
+                        }
+                    }
+                    return tbody;
+                }
+                parseDataToTableData(data) {
+                    const array = [];
+                    for (const values of Object.values(data)) {
+                        for (let i = 0; i < Object.values(values).length; i++) {
+                            const obj = array.at(i) || []
+                            obj.push(Object.values(values)[i])
+                            array[i] = obj;
+                        }
+                    }
+                    return array;
+                }
+            }
+
             $(function () { //渲染完再執行function
                 var getMessageText, message_side, sendMessage;
                 var messages = document.querySelector('.messages');
@@ -515,12 +635,39 @@
                             body: JSON.stringify({ message: text, a: a })
                         });
                         const data = await response.json();
-
-                        var botMessage = new Message({
-                            text: data.response,
-                            message_side: 'left'
-                        });
-                        botMessage.draw();
+                        // console.log("data: ", data);
+                        // console.log("data.response: ",data.response);
+                        switch (a) {
+                            case 1:
+                                Message({
+                                    text: data.response,
+                                    message_side: 'left'
+                                }).draw();
+                                break;
+                            case 3:
+                                url_Message({
+                                    text: data.response,
+                                    message_side: 'left'
+                                }).draw();
+                                content_Message({
+                                    text: data.response,
+                                    message_side: 'left'
+                                }).draw();
+                                break;
+                            case 2:
+                                new TableMessage({
+                                    text: data.response,
+                                    message_side: 'left'
+                                }).draw();
+                                break;
+                            default:
+                                break;
+                        }
+                        // var botMessage = new Message({
+                        //     text: data.response,
+                        //     message_side: 'left'
+                        // });
+                        // botMessage.draw();
 
                         messages.scrollTop = messages.scrollHeight;
                         $messages.animate({ scrollTop: $messages.prop('scrollHeight') }, 300);
@@ -543,10 +690,42 @@
                     text: '瞅啥? 是我 你瑞斯叔叔 有啥屁話快問',
                     message_side: 'left'
                 });
+
                 writingMessage.draw();
+
+                // const jsonString =
+                //     new TableMessage({
+                //         text: jsonString,
+                //         message_side: 'left'
+                //     }).draw();
 
             });
         }.call(this));
+
+        // `{
+        //                               "tactic": {
+        //                                 "0": "Initial Access",
+        //                                 "1": "Execution",
+        //                                 "2": "Execution",
+        //                                 "3": "Impact",
+        //                                 "4": "Defense Evasion"
+        //                               },
+        //                               "technique": {
+        //                                 "0": "Phishing",
+        //                                 "1": "Scheduled Task/Job",
+        //                                 "2": "Command and Scripting Interpreter",
+        //                                 "3": "Defacement",
+        //                                 "4": "Indicator Removal"
+        //                               },
+        //                               "TID": {
+        //                                 "0": "T1566",
+        //                                 "1": "T1053",
+        //                                 "2": "T1059",
+        //                                 "3": "T1491",
+        //                                 "4": "T1070"
+        //                               }
+        //                             }`
+
 
     </script>
 
