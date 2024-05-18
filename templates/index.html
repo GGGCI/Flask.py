@@ -146,7 +146,7 @@
             float: left;
             width: 50px;
             height: 50px;
-            background-image: url("https://memeprod.ap-south-1.linodeobjects.com/user-template/7b93ac2abb68da0d6a44289d60b800ba.png");
+            background-image: url("{{ url_for('static', filename='image/cat.jpg') }}");
             background-size: cover;
             border-radius: 70%;
             margin-right: 10px;
@@ -376,13 +376,13 @@
     <div class="container"
         style="border: 1px solid black; border-radius: 1px; padding: 25px; background-color: #000e0f; margin: auto; text-align: center;">
         <p style="font-family: Arial; color: white; font-size: 20px; margin: 0;">
-            <big>Chatbot</big>
+            <big>Choose Your option</big>
         </p>
     </div>
     <div class="chat_window">
 
         <div class="top_menu">
-            <div class="title">喔是喔真的假的55555:</div>
+            <div class="title">Information Security Chatbot</div>
         </div>
         <ul class="messages"></ul>
         <div class="bottom_wrapper clearfix">
@@ -687,7 +687,7 @@
                 });
                 // Add "Writing..." message
                 writingMessage = new Message({
-                    text: '瞅啥? 是我 你瑞斯叔叔 有啥屁話快問',
+                    text: 'Please ask your question',
                     message_side: 'left'
                 });
 
